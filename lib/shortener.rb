@@ -7,7 +7,8 @@ module Shortener
 
   CHARSETS = {
     alphanum: ('a'..'z').to_a + (0..9).to_a,
-    alphanumcase: ('a'..'z').to_a + ('A'..'Z').to_a + (0..9).to_a
+    alphanumcase: ('a'..'z').to_a + ('A'..'Z').to_a + (0..9).to_a,
+    alphanumcaseplus: ('a'..'z').to_a + ('A'..'Z').to_a + (0..9).to_a + ['~', '_']
   }
 
   # default key length: 5 characters
@@ -17,8 +18,10 @@ module Shortener
   # character set to chose from:
   #  :alphanum     - a-z0-9     -  has about 60 million possible combos
   #  :alphanumcase - a-zA-Z0-9  -  has about 900 million possible combos
+  # alphanumcaseplus            -  look for http://stackoverflow.com/questions/695438/safe-characters-for-friendly-url
+
   mattr_accessor :charset
-  self.charset = :alphanum
+  self.charset = :alphanumcaseplus
 
   #The default redirection url when the key isn't found
   mattr_accessor :default_redirect
