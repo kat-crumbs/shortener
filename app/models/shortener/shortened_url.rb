@@ -3,6 +3,7 @@ class Shortener::ShortenedUrl < ActiveRecord::Base
   REGEX_LINK_HAS_PROTOCOL = Regexp.new('\Ahttp:\/\/|\Ahttps:\/\/', Regexp::IGNORECASE)
 
   validates :url, presence: true
+  validates :unique_key, uniqueness: true, allow_blank: true
 
   # allows the shortened link to be associated with a user
   belongs_to :owner, polymorphic: true
@@ -46,7 +47,6 @@ class Shortener::ShortenedUrl < ActiveRecord::Base
         result = scope.where(url: clean_url(destination_url)).first_or_create(unique_key: custom_key, expires_at: expires_at)
       end
     end
-
     result
   end
 
