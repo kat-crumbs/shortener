@@ -6,6 +6,26 @@ describe Shortener::ShortenedUrl, type: :model do
   it { is_expected.to validate_presence_of :url }
   it { is_expected.to validate_uniqueness_of :unique_key }
 
+  describe "#create_record" do
+    before do
+      Shortener::ShortenedUrl.where(unique_key: "foo").destroy_all
+    end
+
+    context "with a unique_key" do
+      it "does not change the unique_key" do
+        url = Shortener::ShortenedUrl.create!(url: "http://test.de", unique_key: "foo")
+        expect(url.unique_key).to eq "foo"
+      end
+    end
+
+    context "without a unique_key" do
+      it "generates a unique_key" do
+        url = Shortener::ShortenedUrl.create!(url: "http://test.de", unique_key: nil)
+        expect(url.unique_key).not_to be nil
+      end
+    end
+  end
+
   describe '#generate!' do
 
     context 'shortened url record for requested url does not exist' do
