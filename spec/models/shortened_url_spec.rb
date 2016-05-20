@@ -5,6 +5,8 @@ describe Shortener::ShortenedUrl, type: :model do
   it { is_expected.to belong_to :owner }
   it { is_expected.to validate_presence_of :url }
   it { is_expected.to validate_uniqueness_of :unique_key }
+  it { is_expected.to allow_values('http://foo.com', 'http://bar.com').for(:url) }
+  it { is_expected.to_not allow_values('www.foo.com', 'bar.com').for(:url) }
 
   describe "#create_record" do
     before do
@@ -50,12 +52,13 @@ describe Shortener::ShortenedUrl, type: :model do
           end
         end
 
-        context 'shortened url with relative path' do
-          it_should_behave_like "shortened url" do
-            let(:long_url) { Faker::Internet.slug }
-            let(:expected_url) { "/#{long_url}" }
-          end
-        end
+        #### Our urls are now validated for format, so this is not true any more ####
+        # context 'shortened url with relative path' do
+        #   it_should_behave_like "shortened url" do
+        #     let(:long_url) { Faker::Internet.slug }
+        #     let(:expected_url) { "/#{long_url}" }
+        #   end
+        # end
 
         context "shortened url with i18n path" do
           it_should_behave_like "shortened url" do
@@ -137,19 +140,20 @@ describe Shortener::ShortenedUrl, type: :model do
       end
     end
 
-    context "existing shortened URL with relative path" do
-      let(:path) { Faker::Internet.slug }
-      let!(:existing_shortened_url) { Shortener::ShortenedUrl.generate!(path) }
+    #### Our urls are now validated for format, so this is not true any more ####
+    # context "existing shortened URL with relative path" do
+    #   let(:path) { Faker::Internet.slug }
+    #   let!(:existing_shortened_url) { Shortener::ShortenedUrl.generate!(path) }
 
-      context 'same relative path' do
-        it 'finds the shortened url from slashless oath' do
-          expect(Shortener::ShortenedUrl.generate!(path)).to eq existing_shortened_url
-        end
-        it "should look up exsiting URL" do
-          expect(Shortener::ShortenedUrl.generate!("/#{path}")).to eq existing_shortened_url
-        end
-      end
-    end
+    #   context 'same relative path' do
+    #     it 'finds the shortened url from slashless oath' do
+    #       expect(Shortener::ShortenedUrl.generate!(path)).to eq existing_shortened_url
+    #     end
+    #     it "should look up exsiting URL" do
+    #       expect(Shortener::ShortenedUrl.generate!("/#{path}")).to eq existing_shortened_url
+    #     end
+    #   end
+    # end
   end
 
   describe '#generate' do
