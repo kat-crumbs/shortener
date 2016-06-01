@@ -83,7 +83,7 @@ class Shortener::ShortenedUrl < ActiveRecord::Base
     params.try(:except!, *[:id, :action, :controller])
 
     if params.present?
-      encoded_url = URL.encode(url)
+      encoded_url = URI.encode(url)
       uri = URI.parse(encoded_url)
       existing_params = Rack::Utils.parse_nested_query(uri.query)
       uri.query       = existing_params.symbolize_keys.merge(params).to_query
