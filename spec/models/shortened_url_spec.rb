@@ -127,15 +127,56 @@ describe Shortener::ShortenedUrl, type: :model do
       end
 
       context "duplicate unique key" do
+        let(:url) { Faker::Internet.url }
+        let(:other_url) { Faker::Internet.url }
+        let!(:new_url) { Shortener::ShortenedUrl.generate!(other_url) }
+
         before do
-          expect_any_instance_of(Shortener::ShortenedUrl).to receive(:generate_unique_key).
-            and_return(existing_shortened_url.unique_key, 'ABCDEF')
-          Shortener::ShortenedUrl.where(unique_key: 'ABCDEF').delete_all
+          Shortener::ShortenedUrl.where(unique_key: "foo").destroy_all
+          Shortener::ShortenedUrl.create!(url: url, unique_key: "foo")
         end
-        it 'should try until it finds a non-dup key' do
-          short_url = Shortener::ShortenedUrl.generate!(Faker::Internet.url)
-          expect(short_url).not_to be_nil
-          expect(short_url.unique_key).to eq "ABCDEF"
+
+        before do
+          allow(new_url).to receive(:unique_key).and_return(unique_key)
+        end
+
+        context "when creating a unique_key with the same upper and lower case" do
+          let(:unique_key) { 'foo' }
+
+          it "does not save" do
+            expect(new_url.save).to be false
+          end
+        end
+
+        context "when creating a unique_key with differing upper and lower case" do
+          let(:unique_key) { 'Foo' }
+
+          it "does not save" do
+            expect(new_url.save).to be false
+          end
+        end
+
+        context "when updating a unique_key with a value that already exists" do
+          before do
+            new_url.save
+            new_url.unique_key = unique_key
+          end
+
+          context "with the same upper and lower case" do
+            let(:unique_key) { 'foo' }
+
+            it "cannot be saved" do
+              expect(new_url.save).to be false
+            end
+          end
+
+          context "with a differing upper and lower case" do
+            let(:unique_key) { 'Foo' }
+
+            it "cannot be saved" do
+              expect(new_url.save).to be false
+            end
+          end
         end
       end
     end

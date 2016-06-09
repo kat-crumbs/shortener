@@ -122,23 +122,14 @@ class Shortener::ShortenedUrl < ActiveRecord::Base
     "create"
   end
 
-  # we'll rely on the DB to make sure the unique key is really unique.
-  # if it isn't unique, the unique index will catch this and raise an error
   define_method CREATE_METHOD_NAME do
     count = 0
     begin
       self.unique_key = unique_key.blank? ? generate_unique_key : unique_key
       super()
     rescue ActiveRecord::RecordNotUnique, ActiveRecord::StatementInvalid => err
-      logger.info("Failed to generate ShortenedUrl with unique_key: #{unique_key}")
-      self.unique_key = nil
-      if (count +=1) < 5
-        logger.info("retrying with different unique key")
-        retry
-      else
-        logger.info("too many retries, giving up")
-        raise
-      end
+      self.errors.add(:unique_key, "has already been taken")
+      false
     end
   end
 
