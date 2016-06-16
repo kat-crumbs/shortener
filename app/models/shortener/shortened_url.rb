@@ -123,7 +123,6 @@ class Shortener::ShortenedUrl < ActiveRecord::Base
   end
 
   define_method CREATE_METHOD_NAME do
-    count = 0
     begin
       self.unique_key = unique_key.blank? ? generate_unique_key : unique_key
       super()
